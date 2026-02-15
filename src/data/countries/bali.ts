@@ -118,7 +118,7 @@ export const baliData = {
       icon: Soup,
       title: "AUTHENTIC<br />CUISINE",
       description:
-        "Daily breakfast plus a welcome dinner on Day 1.",
+        "Daily breakfast, 1 lunch, plus a welcome dinner on Day 1.",
     },
     {
       icon: TreePine,
