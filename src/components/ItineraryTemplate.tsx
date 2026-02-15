@@ -1,6 +1,18 @@
 import { DayLayout } from "@/components/DayLayout";
 import Navbar from "@/components/Navbar";
-import { Home, Zap, Plane, Users, UtensilsCrossed, TreePine, MapPin, Star, X, Calendar } from "lucide-react";
+import {
+  Home,
+  Zap,
+  Plane,
+  Users,
+  UtensilsCrossed,
+  TreePine,
+  MapPin,
+  Star,
+  X,
+  Calendar,
+  Clock,
+} from "lucide-react";
 import { CategoryTags, CategoryTag } from "@/components/CategoryTags";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -24,21 +36,31 @@ import { getPayUrlBySlug } from "@/data/payUrls";
 
 const getBookingUrlBySlug = (slug?: string) => (slug ? `/#/booking/${slug}` : "#");
 
-const BookNowButton = memo(({ tripSlug }: { tripSlug?: string }) => {
+const BookNowButton = memo(
+  ({
+    tripSlug,
+    label = "Book Now",
+    className = "",
+  }: {
+    tripSlug?: string;
+    label?: string;
+    className?: string;
+  }) => {
   const bookingUrl = getBookingUrlBySlug(tripSlug);
 
   return (
     <a href={bookingUrl} className="inline-block">
       <Button
         size="lg"
-        className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-4 text-lg font-semibold"
+        className={`bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-4 text-lg font-semibold ${className}`}
         disabled={!tripSlug}
       >
-        Book Now
+        {label}
       </Button>
     </a>
   );
-});
+  },
+);
 
 
 
@@ -93,6 +115,9 @@ interface CountryData {
   startDate?: string;
   overviewGallery?: string[];
   overviewGallery2x?: (string | null)[]; // <-- new optional gallery for hero left grid
+  heroGridLeftImage?: string;
+  heroGridTile6?: string;
+  heroGridTile5?: string;
   route?: string[];
   tags?: CategoryTag[];
   aboutDescription: string[];
@@ -945,24 +970,26 @@ const AboutSection = memo(({ data }: { data: CountryData }) => {
           md:w-auto md:left-auto md:right-auto md:ml-0 md:mr-0
           px-4 md:px-8 py-8 md:rounded-t-2xl"
       >
-        {/* Category Tags - centered at top */}
-        {data.tags && data.tags.length > 0 && (
-          <div className="mb-6">
-            <CategoryTags tags={data.tags} />
-          </div>
-        )}
-
         {/* Content grid: about text and highlights */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
           {/* Left col: trip info + about text */}
           <div className="order-1 md:order-none space-y-6 w-full">
             {/* Trip duration and name - stacked layout */}
             <div className="flex flex-col gap-1 mb-4">
-              <div className="flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-primary" />
-                <span className="text-lg font-medium text-foreground">{data.duration}</span>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-primary" />
+                  <span className="text-lg font-medium text-foreground">{data.duration}</span>
+                </div>
+                <span className="text-muted-foreground/60">•</span>
+                <div className="flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-primary" />
+                  <span className="text-lg font-medium text-foreground">September 2026</span>
+                </div>
               </div>
-              <h2 className="text-2xl md:text-3xl font-semibold text-primary">{data.title}</h2>
+              <h2 className="text-2xl md:text-3xl font-semibold text-primary whitespace-nowrap">
+                {data.title}
+              </h2>
             </div>
 
             {data.aboutDescription.map((paragraph, index) => (
@@ -1239,6 +1266,27 @@ export const ItineraryTemplate = memo(
       return data.title.split(" ")[0];
     }, [data.title]);
 
+    const isBali = data.slug === "bali";
+    const baliDurationLabel = data.duration.replace(/ days?$/i, "-day");
+    const heroMeta = isBali
+      ? `${data.location} • ${baliDurationLabel} group escape`
+      : `${data.startDate || data.location} • ${data.duration}`;
+    const mobileHeroMeta =
+      data.slug === "india-journey" ? `Feb 27th • ${data.duration}` : heroMeta;
+
+    const baliDetails = useMemo(() => {
+      const details: { icon: React.ComponentType<any>; label: string }[] = [];
+      details.push({
+        icon: MapPin,
+        label: data.route ? data.route.join(" - ") : data.location,
+      });
+      if (data.startDate) {
+        details.push({ icon: Clock, label: data.startDate });
+      }
+      details.push({ icon: Calendar, label: data.duration });
+      return details;
+    }, [data.route, data.location, data.startDate, data.duration]);
+
     // Compute 4 images for hero left grid (prefer overviewGallery)
     const overviewFour = useMemo(() => {
       if (data.overviewGallery && data.overviewGallery.length) {
@@ -1247,6 +1295,18 @@ export const ItineraryTemplate = memo(
       // fallback to first 4 day hero images (current behavior)
       return data.itinerary.slice(0, 4).map((d) => d.heroImage || data.heroImage);
     }, [data.overviewGallery, data.itinerary, data.heroImage]);
+
+    const baliGridImages = useMemo(
+      () => [
+        data.heroGridLeftImage || data.heroImage,
+        overviewFour[0] || data.heroImage,
+        data.itinerary[2]?.heroImage || overviewFour[1] || data.heroImage,
+        overviewFour[2] || data.heroImage,
+        data.heroGridTile5 || overviewFour[0] || data.heroImage,
+        data.heroGridTile6 || data.itinerary[4]?.heroImage || data.heroImage,
+      ],
+      [data.heroImage, overviewFour, data.itinerary],
+    );
 
     // Scroll to first image function (kept for reference)
     const scrollToFirstImage = useCallback((dayNumber: number) => {
@@ -1360,12 +1420,18 @@ export const ItineraryTemplate = memo(
         <Navbar logoStyle={logoStyle} />
 
         {/* Hero Section (custom) */}
-        <section className="relative h-[70vh] md:h-[70vh] flex overflow-hidden md:mx-6 lg:mx-12 xl:mx-16 rounded-none md:rounded-2xl mt-0 md:mt-6 bg-transparent md:bg-white p-0 md:p-6 shadow-none md:shadow-sm">
+        <section
+          className={
+            isBali
+              ? "relative h-[70vh] md:h-auto flex flex-col overflow-hidden mt-0 md:mt-6 bg-transparent p-0"
+              : "relative h-[70vh] md:h-[70vh] flex overflow-hidden md:mx-6 lg:mx-12 xl:mx-16 rounded-none md:rounded-2xl mt-0 md:mt-6 bg-transparent md:bg-white p-0 md:p-6 shadow-none md:shadow-sm"
+          }
+        >
           {/* Mobile: Show only main image */}
           <div className="md:hidden relative w-full h-full">
             <div
               className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-              style={{ backgroundImage: `url(${data.heroImage})` }}
+              style={{ backgroundImage: `url(${data.heroGridLeftImage || data.heroImage})` }}
             />
             {/* Tour Start Date Badge - Mobile Only */}
             {(data.slug === "india-journey" ||
@@ -1381,24 +1447,107 @@ export const ItineraryTemplate = memo(
                 </div>
               </div>
             )}
-            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10">
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
               <div className="text-center text-white">
                 <h1 className="text-3xl font-bold mb-2">{data.title}</h1>
-                <div className="flex items-center justify-center gap-2 text-base">
-                  <MapPin className="w-4 h-4" />
-                  <span>
-                    {data.slug === "india-journey" ? "Feb 27th" : data.location} •{" "}
-                    {data.duration}
-                  </span>
-                </div>
               </div>
             </div>
           </div>
 
-          {/* Desktop: Grid layout */}
-          <div className="hidden md:flex w-full h-full">
+          {/* Desktop: Bali layout */}
+          {isBali ? (
+            <div className="hidden md:block">
+              <div className="mx-auto w-full max-w-7xl px-4 md:px-3 pt-0 pb-4">
+                <div className="mb-3 flex flex-wrap items-start justify-between gap-4 px-5 md:px-10">
+                  <div className="min-w-0 max-w-[40rem]">
+                      <h1 className="text-3xl font-playfair font-semibold leading-none tracking-tight text-[#0fc2bf] lg:text-4xl whitespace-nowrap">
+                        Black Female Travelers Bali & Gili Islands
+                      </h1>
+
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                        {[
+                          { emoji: "🏖️", label: "Beach" },
+                          { emoji: "⚖️", label: "Culture" },
+                          { emoji: "🧳", label: "Solo" },
+                          { emoji: "🍹", label: "Cocktails" },
+                        ].map(({ emoji, label }) => (
+                          <span
+                            key={label}
+                            className="inline-flex items-center gap-2 rounded-full bg-[#0fc2bf]/10 px-3.5 py-1.5 text-xs font-semibold text-[#0fc2bf] lg:text-sm"
+                          >
+                            <span className="text-base">{emoji}</span>
+                            {label}
+                          </span>
+                        ))}
+                      </div>
+
+                      <div className="mt-2 flex flex-wrap items-center gap-4 text-lg font-semibold text-slate-800 lg:text-xl">
+                        {[
+                          { icon: MapPin, label: "Canggu - Ubud - Gili Islands" },
+                          { icon: Clock, label: "September 2026" },
+                          { icon: Calendar, label: "10 Days" },
+                        ].map(({ icon: Icon, label }) => (
+                          <div key={label} className="flex items-center gap-2">
+                            <Icon className="h-4 w-4 text-[#0fc2bf] lg:h-5 lg:w-5" />
+                            <span className="font-playfair">{label}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                  <div className="w-full max-w-[220px] pt-1 text-right">
+                    <p className="text-base text-slate-700">
+                      From{" "}
+                      <span className="text-2xl font-extrabold text-slate-900 lg:text-3xl">
+                        {data.price || "USD $1,399"}
+                      </span>
+                    </p>
+                    <div className="mt-2 inline-flex">
+                      <BookNowButton tripSlug={data.slug} label="Reserve Now $300" className="rounded-full" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="overflow-hidden rounded-[24px] bg-white">
+                  <div className="grid h-[460px] grid-cols-12 grid-rows-2 gap-1 lg:h-[500px] xl:h-[530px]">
+                    <img
+                      src={baliGridImages[0]}
+                      alt={`${data.title} hero`}
+                      className="col-span-3 row-span-2 h-full w-full object-cover"
+                    />
+                    <img
+                      src={baliGridImages[1]}
+                      alt={`${data.title} highlight 1`}
+                      className="col-span-5 h-full w-full object-cover"
+                    />
+                    <img
+                      src={baliGridImages[2]}
+                      alt={`${data.title} highlight 2`}
+                      className="col-span-4 h-full w-full object-cover"
+                    />
+                    <img
+                      src={baliGridImages[3]}
+                      alt={`${data.title} highlight 3`}
+                      className="col-span-3 h-full w-full object-cover"
+                    />
+                    <img
+                      src={baliGridImages[4]}
+                      alt={`${data.title} highlight 4`}
+                      className="col-span-3 h-full w-full object-cover"
+                    />
+                    <img
+                      src={baliGridImages[5]}
+                      alt={`${data.title} highlight 5`}
+                      className="col-span-3 h-full w-full object-cover"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="hidden md:flex w-full h-full gap-3">
             {/* Left side: Main hero image (60% of screen) */}
-            <div className="w-[60%] relative overflow-hidden rounded-tl-2xl rounded-bl-2xl">
+            <div className="w-[60%] relative overflow-hidden rounded-2xl">
               <div
                 className="absolute inset-0 bg-cover bg-center bg-no-repeat"
                 style={{ backgroundImage: `url(${data.heroImage})` }}
@@ -1426,35 +1575,29 @@ export const ItineraryTemplate = memo(
                   </p>
                 </div>
               </div>
-              <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 z-10">
-                <div className="text-center text-white">
-                  <h1 className="text-4xl lg:text-5xl font-bold mb-3">{data.title}</h1>
-                  <div className="flex items-center justify-center gap-2 text-lg">
-                    <MapPin className="w-5 h-5" />
-                    <span>
-                      {data.startDate || data.location} • {data.duration}
-                    </span>
-                  </div>
+              <div className="absolute top-6 left-6 z-10">
+                <div className="text-left text-white bg-black/35 backdrop-blur-sm rounded-2xl px-5 py-4">
+                  <h1 className="text-4xl lg:text-5xl font-bold mb-2">{data.title}</h1>
+                  <div className="text-base text-white/90">{heroMeta}</div>
                 </div>
               </div>
             </div>
 
             {/* Right side: 2 images on top, review section on bottom */}
-            <div className="w-[40%] h-full flex flex-col gap-0">
+            <div className="w-[40%] h-full flex flex-col gap-3">
               {/* Top row: 2 images */}
-              <div className="h-1/2 md:h-[55%] grid grid-cols-2 gap-0">
+              <div className="h-1/2 md:h-[55%] grid grid-cols-2 gap-3">
                 {overviewFour.slice(0, 2).map((src, index) => {
                   const src2x = data.overviewGallery2x?.[index] || undefined;
-                  const cornerClass = index === 1 ? "rounded-tr-2xl" : "";
 
                   return (
-                    <div key={index} className="relative h-full w-full overflow-hidden">
+                    <div key={index} className="relative h-full w-full overflow-hidden rounded-2xl">
                       <img
                         src={src}
                         srcSet={src2x ? `${src} 1x, ${src2x} 2x` : undefined}
                         sizes="(min-width:1280px) 20vw, (min-width:1024px) 20vw, 50vw"
                         alt={`${data.title} overview ${index + 1}`}
-                        className={`h-full w-full object-cover hover:scale-105 transition-transform duration-300 ${cornerClass}`}
+                        className="h-full w-full object-cover hover:scale-105 transition-transform duration-300"
                         decoding="async"
                         loading="eager"
                       />
@@ -1469,20 +1612,19 @@ export const ItineraryTemplate = memo(
                   <ReviewSection review={data.review} />
                 </div>
               ) : (
-                <div className="h-1/2 md:h-[45%] grid grid-cols-2 gap-0">
+                <div className="h-1/2 md:h-[45%] grid grid-cols-2 gap-3">
                   {overviewFour.slice(2, 4).map((src, index) => {
                     const actualIndex = index + 2;
                     const src2x = data.overviewGallery2x?.[actualIndex] || undefined;
-                    const cornerClass = index === 1 ? "rounded-br-2xl" : "";
 
                     return (
-                      <div key={actualIndex} className="relative h-full w-full overflow-hidden">
+                      <div key={actualIndex} className="relative h-full w-full overflow-hidden rounded-2xl">
                         <img
                           src={src}
                           srcSet={src2x ? `${src} 1x, ${src2x} 2x` : undefined}
                           sizes="(min-width:1280px) 20vw, (min-width:1024px) 20vw, 50vw"
                           alt={`${data.title} overview ${actualIndex + 1}`}
-                          className={`h-full w-full object-cover hover:scale-105 transition-transform duration-300 ${cornerClass}`}
+                          className="h-full w-full object-cover hover:scale-105 transition-transform duration-300"
                           decoding="async"
                           loading="eager"
                         />
@@ -1492,7 +1634,8 @@ export const ItineraryTemplate = memo(
                 </div>
               )}
             </div>
-          </div>
+            </div>
+          )}
         </section>
 
         {/* Country Overview - with sticky sidebar on desktop */}

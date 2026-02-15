@@ -8,6 +8,11 @@ import { Home, Zap, Plane, Users, Soup, TreePine } from "lucide-react";
 import baliHero from "@/assets/bali/bali-hero.jpg";
 import tile1 from "@/assets/bali/tile1.jpg";
 import tile2 from "@/assets/bali/tile2.jpg";
+import tile3 from "@/assets/bali/tile3.jpeg";
+import tile4 from "@/assets/bali/tile4.jpeg";
+import tile5 from "@/assets/bali/tile5.jpeg";
+import tile6 from "@/assets/bali/tile6.jpeg";
+
 
 import day01 from "@/assets/bali/day-1.jpg";
 import day02 from "@/assets/bali/day-2.jpg";
@@ -42,7 +47,7 @@ const baliTemple =
 export const baliData = {
   id: "bali-gili-escape",
   slug: "bali",
-  title: "Bali & Gili Islands",
+  title: "Black Female Travelers Bali",
   subtitle: "Come solo. Leave with a tan, memories, and a whole new crew.",
   location: "Bali & Gili Islands, Indonesia",
   duration: "10 days",
@@ -58,11 +63,15 @@ export const baliData = {
   ],
 
   aboutDescription: [
-    "Welcome to the ultimate 10-day group escape through Bali and the Gili Islands. From temple hopping and surf lessons to island parties and sunset cocktails, this trip has it all. Come solo, leave with a tan, memories, and a whole new crew.",
+    "Experience the ultimate 10-day group escape through Bali and the Gili Islands. Discover ancient temples, learn to surf, celebrate under island skies, and toast to sunsets with new friends. Come solo, leave with incredible memories and a whole new crew.",
   ],
 
   // ✅ Hero right-side tiles (desktop grid)
+  overviewGallery: [tile4, tile2, tile3, tile2],
   overviewGallery2x: [tile1, tile2, tile1, tile2],
+  heroGridLeftImage: tile5,
+  heroGridTile5: tile1,
+  heroGridTile6: tile6,
   aboutImages: [tile1, tile2],
 
   highlights: [
@@ -76,11 +85,7 @@ export const baliData = {
       image: baliTemple,
       description: "Iconic terraces, jungle swings, and dreamy views.",
     },
-    {
-      title: "Surf Lesson",
-      image: day03,
-      description: "Beginner-friendly waves + lots of laughs (wipeouts encouraged).",
-    },
+
   ],
 
   whatsIncludedHighlights: [
@@ -111,9 +116,9 @@ export const baliData = {
     },
     {
       icon: Soup,
-      title: "DAILY<br />BREAKFAST",
+      title: "AUTHENTIC<br />CUISINE",
       description:
-        "Start every day right with included breakfast at your accommodation.",
+        "Daily breakfast plus a welcome dinner on Day 1.",
     },
     {
       icon: TreePine,
@@ -154,6 +159,7 @@ export const baliData = {
       description:
         "Welcome to Bali, baby! ✈️🌴 Get picked up from the airport, check into your hotel, and switch instantly into island mode. Spend the afternoon chilling by the pool, dipping your toes in the ocean, or exploring nearby beach streets before we kick things off with our welcome dinner — drinks flowing, laughs guaranteed, friendships officially forming.",
 
+      meals: "Welcome dinner",
       accommodation: { name: "Koa D Surfer, Canggu" },
       highlights: "Sunset beach walks, poolside lounging, Canggu shopping spree",
       transportation: {
@@ -181,10 +187,10 @@ export const baliData = {
       location: "Canggu",
       heroImage: day03,
       description:
-        "It's time to live out your surf dream 🌊. Head to Kuta Beach for a fun, beginner-friendly surf lesson with expert local instructors. Wipeouts are encouraged (laughing is mandatory). Later, we hit Finn’s Beach Club to sip cocktails and watch the sky turn every shade of magic at sunset.",
+        "It's time to live out your surf dream 🌊. Head to Kuta Beach for a fun, beginner-friendly surf lesson or massage with expert local instructors. Later, we hit Finn’s Beach Club to sip cocktails and watch the sky turn every shade of magic at sunset.",
       meals: "Breakfast",
       accommodation: { name: "Koa D Surfer, Canggu" },
-      highlights: "Surf lesson at Kuta Beach, Finn’s Beach Club, sunset cocktails",
+      highlights: "Surf lesson at Kuta Beach or massage, Finn’s Beach Club, sunset cocktails",
     },
     {
       day: 4,
@@ -281,7 +287,7 @@ export const baliData = {
     },
     {
       title: "Meals",
-      items: [{ text: "Daily breakfasts" }, { text: "1 Lunch" }],
+      items: [{ text: "Daily breakfasts" }, { text: "1 Lunch" }, { text: "Welcome dinner (Day 1)" }],
     },
     {
       title: "Transportation",
@@ -294,7 +300,7 @@ export const baliData = {
     {
       title: "Activities & Experiences",
       items: [
-        { text: "Surf lesson at Kuta Beach" },
+        { text: "Surf lesson at Kuta Beach or massage" },
         { text: "Balinese cooking class" },
         { text: "Temple visits (Taman Ayun & Tanah Lot)" },
         { text: "Waterfall adventure (Tegenungan)" },
@@ -343,3 +349,6 @@ export const baliData = {
 };
 
 export default baliData;
+
+
+

@@ -169,8 +169,6 @@ function DesktopScroller({ stops, slug }: { stops: string[]; slug?: string }) {
 
   const scrollBy = (dx: number) => trackRef.current?.scrollBy({ left: dx, behavior: "smooth" });
 
-  const isJapan = slug === "japan";
-
   // Check if tablet size (768px to 1024px)
   const [isTablet, setIsTablet] = React.useState(false);
   
@@ -207,54 +205,41 @@ function DesktopScroller({ stops, slug }: { stops: string[]; slug?: string }) {
 
   return (
     <div
-      className={`w-full rounded-none bg-transparent p-0 shadow-none md:max-w-full lg:max-w-none ${
-        isJapan ? "flex flex-col items-center" : ""
-      }`}
+      className="w-full rounded-none bg-transparent p-0 shadow-none md:max-w-full lg:max-w-none"
       style={{ border: 0 }}
     >
-      {/* Header with icon + arrows - hidden for Japan layout */}
-      {!isJapan && (
-        <div className="mb-1 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <RouteIcon className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-semibold">Route</h3>
-          </div>
-          <div className="md:flex xl:hidden items-center gap-1.5">
-            <button
-              type="button"
-              aria-label="Scroll route left"
-              onClick={() => scrollBy(-320)}
-              disabled={!canScrollLeft}
-              className="rounded-full p-1 disabled:opacity-30 hover:opacity-80 focus:outline-none"
-              style={{ background: "transparent", border: 0, boxShadow: "none" }}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              aria-label="Scroll route right"
-              onClick={() => scrollBy(320)}
-              disabled={!canScrollRight}
-              className="rounded-full p-1 disabled:opacity-30 hover:opacity-80 focus:outline-none"
-              style={{ background: "transparent", border: 0, boxShadow: "none" }}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
+      <div className="mb-1 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <RouteIcon className="h-5 w-5 text-primary" />
+          <h3 className="text-lg font-semibold">Route</h3>
         </div>
-      )}
+        <div className="md:flex xl:hidden items-center gap-1.5">
+          <button
+            type="button"
+            aria-label="Scroll route left"
+            onClick={() => scrollBy(-320)}
+            disabled={!canScrollLeft}
+            className="rounded-full p-1 disabled:opacity-30 hover:opacity-80 focus:outline-none"
+            style={{ background: "transparent", border: 0, boxShadow: "none" }}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            aria-label="Scroll route right"
+            onClick={() => scrollBy(320)}
+            disabled={!canScrollRight}
+            className="rounded-full p-1 disabled:opacity-30 hover:opacity-80 focus:outline-none"
+            style={{ background: "transparent", border: 0, boxShadow: "none" }}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
 
       {/* Scroll track */}
       <div ref={trackRef} className="no-scrollbar overflow-x-auto" style={{ scrollBehavior: "smooth" }}>
         <div className="flex items-center flex-nowrap gap-1.5 py-0.5">
-          {/* Inline label for Japan layout */}
-          {isJapan && (
-            <div className="flex items-center gap-2 mr-3">
-              <RouteIcon className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-semibold text-[#506345]">Route</h3>
-            </div>
-          )}
-
           {stops.map((stop, i) => {
             const color = getColor(i);
             const nextColor = getColor(i + 1);
