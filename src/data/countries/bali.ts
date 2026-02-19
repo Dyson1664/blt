@@ -53,6 +53,8 @@ export const baliData = {
   duration: "10 days",
   heroImage: baliHero,
   price: "USD $1,169",
+  startDate: "August 14th",
+  startDateISO: "2026-08-14",
   route: ["Canggu", "Ubud", "Gili Islands"],
 
   tags: [

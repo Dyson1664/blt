@@ -113,6 +113,7 @@ interface CountryData {
   heroImage: string;
   price?: string;
   startDate?: string;
+  startDateISO?: string;
   overviewGallery?: string[];
   overviewGallery2x?: (string | null)[]; // <-- new optional gallery for hero left grid
   heroGridLeftImage?: string;
@@ -984,7 +985,9 @@ const AboutSection = memo(({ data }: { data: CountryData }) => {
                 <span className="text-muted-foreground/60">•</span>
                 <div className="flex items-center gap-2">
                   <Clock className="w-5 h-5 text-primary" />
-                  <span className="text-lg font-medium text-foreground">September 2026</span>
+                  <span className="text-lg font-medium text-foreground">
+                    {data.startDate || "Dates TBA"}
+                  </span>
                 </div>
               </div>
               <h2 className="text-2xl md:text-3xl font-semibold text-primary whitespace-nowrap">
@@ -1287,6 +1290,49 @@ export const ItineraryTemplate = memo(
       return details;
     }, [data.route, data.location, data.startDate, data.duration]);
 
+    const formatMonthDayWithOrdinal = useCallback((dateObj: Date) => {
+      const months = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ];
+      const day = dateObj.getUTCDate();
+      const month = months[dateObj.getUTCMonth()];
+      const suffix =
+        day % 10 === 1 && day % 100 !== 11
+          ? "st"
+          : day % 10 === 2 && day % 100 !== 12
+            ? "nd"
+            : day % 10 === 3 && day % 100 !== 13
+              ? "rd"
+              : "th";
+      return `${month} ${day}${suffix}`;
+    }, []);
+
+    const getItineraryDateLabel = useCallback(
+      (dayNumber: number) => {
+        if (data.startDateISO) {
+          const [y, m, d] = data.startDateISO.split("-").map((v) => Number(v));
+          if (y && m && d) {
+            const base = new Date(Date.UTC(y, m - 1, d));
+            base.setUTCDate(base.getUTCDate() + (dayNumber - 1));
+            return formatMonthDayWithOrdinal(base);
+          }
+        }
+        return data.startDate || "";
+      },
+      [data.startDateISO, data.startDate, formatMonthDayWithOrdinal],
+    );
+
     // Compute 4 images for hero left grid (prefer overviewGallery)
     const overviewFour = useMemo(() => {
       if (data.overviewGallery && data.overviewGallery.length) {
@@ -1389,7 +1435,7 @@ export const ItineraryTemplate = memo(
               <AccordionContent className="px-0 pb-0">
                 <DayLayout
                   dayNumber={day.day}
-                  date={day.date}
+                  date={day.date || getItineraryDateLabel(day.day)}
                   location={day.location || day.title}
                   siteName={day.siteName}
                   heroImage={day.heroImage || data.heroImage}
@@ -1484,7 +1530,7 @@ export const ItineraryTemplate = memo(
                       <div className="mt-2 flex flex-wrap items-center gap-4 text-lg font-semibold text-slate-800 lg:text-xl">
                         {[
                           { icon: MapPin, label: "Canggu - Ubud - Gili Islands" },
-                          { icon: Clock, label: "September 2026" },
+                          { icon: Clock, label: data.startDate || "Dates TBA" },
                           { icon: Calendar, label: "10 Days" },
                         ].map(({ icon: Icon, label }) => (
                           <div key={label} className="flex items-center gap-2">
